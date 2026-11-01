@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Marine Pollution Detection – AI marine pollution monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef4f3;--sf:#fff;--ink:#0d2a33;--mut:#5a747b;--ln:#d3e0df;--ac:#0b6e7f;--on:#fff;--lo:#2a9a66;--me:#c98a10;--hi:#d0463b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1a1f;--sf:#112a31;--ink:#e3f1f1;--mut:#8fb0b4;--ln:#23424a;--ac:#4cc3d6;--on:#06222a;--lo:#47c28a;--me:#f0b440;--hi:#f06a5e}}
+*{box-sizing:inherit}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Sora,system-ui,sans-serif}
+h1,h2,h3{margin:0 0 .5rem;line-height:1.2}h2{font-size:1.3rem}h3{font-size:1rem}
+.hide{display:none!important}
+header{background:var(--ac);color:var(--on);padding:.7rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+header b{font-size:1.1rem}header span{font-size:.8rem;opacity:.85;overflow:hidden;text-overflow:ellipsis}
+nav{display:flex;gap:.4rem;overflow-x:auto;padding:.6rem 1rem;background:var(--sf);border-bottom:1px solid var(--ln)}
+nav button{white-space:nowrap}
+button,select,input{font:inherit;color:inherit}
+button{background:var(--bg);border:1px solid var(--ln);border-radius:8px;padding:.45rem .8rem;cursor:pointer}
+button.on,button.pri{background:var(--ac);color:var(--on);border-color:var(--ac)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+input,select{background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:.5rem .6rem;width:100%}
+label{display:block;font-size:.85rem;color:var(--mut)}
+main{max-width:920px;margin:0 auto;padding:1rem}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:1rem;margin-bottom:1rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem}
+.stat b{display:block;font-size:1.8rem}
+.tag{display:inline-block;padding:.1rem .6rem;border-radius:99px;color:#fff;font-size:.8rem;font-weight:600}
+.Low{background:var(--lo)}.Medium{background:var(--me)}.High{background:var(--hi)}
+.meter{height:10px;background:var(--ln);border-radius:9px;overflow:hidden}.meter i{display:block;height:100%}
+.row{display:flex;align-items:center;gap:.6rem;padding:.35rem 0;border-bottom:1px solid var(--ln)}
+.row>span:first-child{flex:1}.row .meter{width:90px}
+table{width:100%;border-collapse:collapse;font-size:.85rem}th,td{text-align:left;padding:.4rem;border-bottom:1px solid var(--ln)}
+.wrap{overflow-x:auto}svg{width:100%;height:auto;display:block}svg text{fill:var(--ink);font-size:11px}
+.mut{color:var(--mut);font-size:.85rem}.err{color:var(--hi)}
+#login{max-width:380px;margin:12vh auto;padding:0 1rem}
+img.prev{max-width:100%;max-height:260px;border-radius:10px;margin:.6rem 0}
+header{background:linear-gradient(90deg,#0b6e7f,#2a7fd4 55%,#7a4fd0);color:#fff}
+.banner{background:linear-gradient(120deg,#0b6e7f,#2a9a66 50%,#c98a10);color:#fff;border-radius:12px;padding:1rem;margin-bottom:1rem}
+#wel{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;padding:1rem;background:linear-gradient(135deg,#0b6e7f,#2a7fd4,#7a4fd0,#d0463b,#d99a1c);background-size:300% 300%;animation:flow 6s ease infinite}
+#wel h1{font-size:2.2rem}
+@keyframes flow{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+@media (prefers-reduced-motion:reduce){#wel{animation:none}}
+.stat:nth-child(1){border-top:4px solid #2a7fd4}.stat:nth-child(2){border-top:4px solid #d0463b}.stat:nth-child(3){border-top:4px solid #7a4fd0}.stat:nth-child(4){border-top:4px solid #d99a1c}
+video{width:100%;max-height:260px;border-radius:10px;background:#000;margin:.6rem 0}
+.sbar{display:flex;gap:.4rem;margin-bottom:.7rem}.sbar input{flex:1}
+.chips{display:flex;gap:.4rem;overflow-x:auto;margin-bottom:.8rem}.chips button{border-radius:99px;white-space:nowrap}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:1rem;background:linear-gradient(120deg,#0b6e7f,#2a7fd4 60%,#7a4fd0);color:#fff;border-radius:14px;padding:1.2rem;margin-bottom:1rem}.hero h2{color:#fff}.hero p{margin:0 0 .6rem}.hero button{background:#fff;color:#0b6e7f;border-color:#fff;font-weight:600}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.8rem}
+.pc{position:relative;display:flex;flex-direction:column;gap:.35rem;padding:.7rem;margin:0}.pc p{flex:1;margin:0}
+.pimg{height:96px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:2.6rem;background:linear-gradient(135deg,#cfeff3,#e3dcff)}
+.pb{position:absolute;top:1rem;left:1rem;background:#d0463b}
+</style></head><body>
+
+<section id="login">
+ <div class="card">
+  <h1>🌊 Marine Pollution Detection</h1>
+  <p class="mut">AI-based marine oil spill and pollution source prediction.</p>
+  <label for="em">Email</label><input id="em" type="email" autocomplete="email">
+  <label for="pw" style="margin-top:.6rem">Password</label><input id="pw" type="password" autocomplete="current-password">
+  <p id="lerr" class="err"></p>
+  <button class="pri" id="lbtn" style="width:100%">Sign in</button>
+  <p class="mut">New here? Entering a new email creates your account on this device. An email starting with "admin" opens the Admin panel.</p>
+ </div>
+</section>
+
+<div id="wel" class="hide"><div style="font-size:3.5rem">🌊</div><h1 id="welt"></h1><p>Your marine pollution dashboard is ready.</p><button id="welb" style="background:#fff;color:#0b6e7f;border-color:#fff">Go to dashboard</button></div>
+<div id="app" class="hide">
+ <header><b>🌊 Marine Pollution Detection</b><span id="who"></span><button id="out">Log out</button></header>
+ <nav id="nav"></nav>
+ <main>
+  <section id='v-home'>
+   <div class='sbar'><input id='hq' type='search' placeholder='Search tools: water, oil, plastic, state' aria-label='Search tools'><button class='pri' id='hs'>Search</button></div>
+   <div class='chips' id='hcats'></div>
+   <div class='hero'><div><h2>Detect marine pollution early</h2><p>Analyse water, oil spills and microplastics, then act on the results.</p><button id='hgo'>Start analysis</button></div><div style='font-size:4rem'>🌊</div></div>
+   <h3>Tools</h3><div class='pgrid' id='hgrid'></div>
+   <h3 style='margin-top:1rem'>Recently analysed</h3><div class='card' id='hrec'></div>
+  </section>
+
+  <section id="v-dash">
+   <div class="banner" id="ban"></div><h2>Dashboard</h2>
+   <div class="grid" id="stats"></div><br>
+   <div class="card"><h3>Water quality risk trend (%)</h3><div id="trend"></div></div>
+   <div class="card"><h3>Latest water parameters (risk %)</h3><div id="lastparams"></div></div>
+   <div class="card"><h3>Pollution by type (latest)</h3><div id="typebars"></div></div>
+   <div class="card"><h3>Safety alerts and advice</h3><div id="alerts"></div></div>
+   <div class="card"><h3>Oil spill coverage trend (%)</h3><div id="otrend"></div></div>
+   <div class="card"><h3>Level distribution across all analyses</h3><div id="dist"></div></div>
+  </section>
+
+  <section id="v-water" class="hide">
+   <h2>Water quality</h2>
+   <div class="card">
+    <div class="grid" id="wf"></div><br>
+    <button class="pri" id="wgo">Analyse water</button> <button id="wsample">Fill sample values</button>
+    <p id="werr" class="err"></p>
+   </div>
+   <div class="card hide" id="wres"></div>
+  </section>
+
+  <section id="v-oil" class="hide">
+   <h2>Oil spill detection</h2>
+   <div class="card">
+    <label for="oimg">Upload a sea-surface photo, or take one now</label><input id="oimg" type="file" accept="image/*">
+    <input id="cin" type="file" accept="image/*" capture="environment" class="hide">
+    <div style="margin-top:.5rem"><button id="cam">Use live camera</button> <button id="snap" class="pri hide">Capture and analyse</button> <button id="stopc" class="hide">Cancel</button></div>
+    <video id="vid" class="hide" autoplay playsinline muted></video>
+    <img id="oprev" class="prev hide" alt="Uploaded sea image">
+    <canvas id="cv" class="hide"></canvas>
+    <div id="ores"></div>
+    <p class="mut">The level is estimated from how much of the image is covered by dark, oily surface. Use it as a screening aid, then confirm with a field check.</p>
+   </div>
+  </section>
+
+  <section id="v-state" class="hide">
+   <h2>Pollution by state</h2>
+   <div class="card"><label for="ss">Choose your state</label><select id="ss"></select>
+    <div id="sres" style="margin-top:1rem"></div></div>
+   <div class="card"><h3>Top 5 hotspots</h3><div id="hot"></div></div>
+   <div class="card"><h3>All states compared (overall %)</h3><div id="allst"></div></div>
+  </section>
+
+  <section id="v-micro" class="hide">
+   <h2>Microplastic monitoring</h2>
+   <div class="card"><div class="grid">
+    <div><label for="la">Latitude</label><input id="la" type="number" step="any" placeholder="13.05"></div>
+    <div><label for="lo">Longitude</label><input id="lo" type="number" step="any" placeholder="80.28"></div>
+    <div><label for="pc">Particles per m³</label><input id="pc" type="number" min="0" step="any" placeholder="24"></div>
+   </div><br>
+   <button class="pri" id="madd">Add record</button> <button id="mload">Load sample records</button> <button id="mclr">Clear records</button>
+   <p id="merr" class="err"></p></div>
+   <div class="card"><h3>Records</h3><div class="wrap" id="mtab"></div></div>
+   <div class="card"><h3>Particle load by record (% of 50 particles/m³)</h3><div id="mchart"></div></div>
+   <div class="card"><h3>Sampling locations (bigger circle means higher load)</h3><div id="mscat"></div></div>
+  </section>
+
+  <section id='v-admin' class='hide'>
+   <h2>Admin panel</h2>
+   <div class='grid' id='astats'></div><br>
+   <div class='card'><h3>Users</h3><div class='wrap' id='atab'></div></div>
+   <div class='card'><h3>Activity by type (% of all analyses)</h3><div id='aact'></div></div>
+  </section>
+
+    <section id="v-hist" class="hide">
+   <h2>History</h2>
+   <div class="card"><button id="hclr">Clear history</button><div class="wrap" id="htab" style="margin-top:.6rem"></div></div>
+  </section>
+ </main>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const mem={};
+const ld=(k,d)=>{if(mem[k]!==undefined)return mem[k];try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
+const sv=(k,v)=>{mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const clamp=v=>Math.max(0,Math.min(100,v)),lvl=p=>p<33?'Low':p<66?'Medium':'High';
+const COL={Low:'var(--lo)',Medium:'var(--me)',High:'var(--hi)'};
+const tag=p=>`<span class="tag ${lvl(p)}">${lvl(p)}</span>`;
+const meter=p=>`<div class="meter"><i style="width:${p}%;background:${COL[lvl(p)]}"></i></div>`;
+const hash=s=>{let x=5381;for(const c of s)x=(x*33+c.charCodeAt(0))>>>0;return x};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* charts */
+function bars(items){if(!items.length)return'<p class="mut">No data yet. Run an analysis to see it here.</p>';
+ const h=items.length*26+4;
+ return `<svg viewBox="0 0 360 ${h}" role="img" aria-label="Bar chart">`+items.map((d,i)=>{const w=Math.max(2,d.v/100*190);
+  return `<text x="0" y="${i*26+16}">${esc(d.l)}</text><rect x="110" y="${i*26+4}" width="${w}" height="16" rx="4" style="fill:${COL[lvl(d.v)]}"/><text x="${116+w}" y="${i*26+16}">${Math.round(d.v)}%</text>`}).join('')+'</svg>'}
+function line(v){if(v.length<2)return'<p class="mut">Run at least two analyses to see a trend.</p>';
+ const x=i=>20+i*(330/(v.length-1)),y=p=>130-p*1.2,pts=v.map((p,i)=>`${x(i)},${y(p)}`).join(' ');
+ return `<svg viewBox="0 0 360 150" role="img" aria-label="Trend line chart">`+[0,33,66,100].map(g=>`<line x1="20" x2="350" y1="${y(g)}" y2="${y(g)}" style="stroke:var(--ln)"/><text x="0" y="${y(g)+4}">${g}</text>`).join('')+
+ `<polyline points="${pts}" fill="none" style="stroke:var(--ac)" stroke-width="2.5"/>`+v.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p)}" r="4" style="fill:${COL[lvl(p)]}"/>`).join('')+'</svg>'}
+
+/* history */
+function log(type,title,pct,detail){const h=ld('hist',[]);h.unshift({t:new Date().toLocaleString(),type,title,pct:Math.round(pct),detail});sv('hist',h.slice(0,200))}
+
+/* auth */
+function show(on,wl){$('#login').classList.toggle('hide',on);$('#app').classList.toggle('hide',!on);if(on){$('#who').textContent=ld('sess','');$('#nav [data-v=admin]').classList.toggle('hide',!ADM());go('home');if(wl){$('#welt').textContent='Welcome, '+nm()+'!';$('#wel').classList.remove('hide');setTimeout(()=>$('#wel').classList.add('hide'),3500)}}}
+$('#welb').onclick=()=>$('#wel').classList.add('hide');
+$('#lbtn').onclick=()=>{const e=$('#em').value.trim().toLowerCase(),p=$('#pw').value,er=$('#lerr');er.style.color='';
+ if(!/^\S+@\S+\.\S+$/.test(e)){er.textContent='Enter a valid email address.';return}
+ if(!p){er.textContent='Enter your password.';return}
+ const mt0=ld('meta',{});if(mt0[e]&&mt0[e].b){er.textContent='This account is blocked by the admin.';return}
+ const u=ld('users',{});
+ if(u[e]===undefined)u[e]=hash(p);else if(u[e]!==hash(p)){er.textContent='Wrong password for this email.';return}
+ sv('users',u);sv('sess',e);const mt=ld('meta',{});mt[e]=mt[e]||{j:new Date().toLocaleDateString(),n:0};mt[e].n++;mt[e].l=new Date().toLocaleString();sv('meta',mt);er.textContent='';$('#pw').value='';show(true,true)};
+$('#out').onclick=()=>{sv('sess','');show(false);const er=$('#lerr');er.style.color='var(--lo)';er.textContent='You’ve logged out safely.'};
+
+/* nav */
+const V=[['home','Home'],['dash','Dashboard'],['water','Water quality'],['oil','Oil spill'],['state','State levels'],['micro','Microplastics'],['hist','History'],['admin','Admin']];
+$('#nav').innerHTML=V.map(v=>`<button data-v="${v[0]}">${v[1]}</button>`).join('');
+$$('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+function go(v){V.forEach(x=>$('#v-'+x[0]).classList.toggle('hide',x[0]!==v));$$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ ({dash:dash,state:stateView,micro:micro,hist:hist,admin:admin,home:home})[v]?.();window.scrollTo(0,0)}
+
+/* water quality */
+const P=[['ph','pH','',v=>(Math.abs(v-7.5)-1)/2.5*100,'7.8'],['tu','Turbidity','NTU',v=>v/50*100,'12'],['te','Temperature','°C',v=>(v-25)/15*100,'29'],
+ ['as','Arsenic','mg/L',v=>v/.05*100,'0.02'],['hg','Mercury','mg/L',v=>v/.005*100,'0.002'],['bo','BOD','mg/L',v=>v/30*100,'8'],['pb','Lead','mg/L',v=>v/.05*100,'0.03']];
+const LIM={ph:'6.5 to 8.5',tu:'5 NTU',te:'30 °C',as:'0.01 mg/L',hg:'0.001 mg/L',bo:'3 mg/L',pb:'0.01 mg/L'};
+$('#wf').innerHTML=P.map(p=>`<div><label for="w_${p[0]}">${p[1]}${p[2]?' ('+p[2]+')':''}</label><input id="w_${p[0]}" type="number" step="any" placeholder="e.g. ${p[4]}"></div>`).join('');
+$('#wsample').onclick=()=>{const s=[8.9,45,34,.04,.004,22,.03];P.forEach((p,i)=>$('#w_'+p[0]).value=s[i])};
+$('#wgo').onclick=()=>{const vals=P.map(p=>$('#w_'+p[0]).value);
+ if(vals.some(v=>v===''||isNaN(v)||(+v<0))){$('#werr').textContent='Enter a valid value for all seven parameters.';return}$('#werr').textContent='';
+ const sc={};P.forEach((p,i)=>sc[p[0]]=clamp(p[3](+vals[i])));
+ const a=Object.values(sc),all=Math.round(.6*a.reduce((x,y)=>x+y,0)/a.length+.4*Math.max(...a));
+ const src=[];
+ if(sc.bo>=50&&sc.tu>=40)src.push('Domestic sewage or a municipal drain outfall');
+ if(Math.max(sc.as,sc.hg,sc.pb)>=50)src.push('Industrial effluent (mining, tannery, battery or chemical units)');
+ if(sc.ph>=50)src.push('Acidic or alkaline discharge from chemical plants or mine runoff');
+ if(sc.te>=50)src.push('Thermal discharge from a power plant or cooling water');
+ if(sc.tu>=50&&sc.bo<50)src.push('Sediment runoff from dredging, erosion or construction');
+ if(!src.length)src.push(all<33?'No significant source detected. Values are within safe limits.':'Mixed minor sources. Keep monitoring.');
+ $('#wres').classList.remove('hide');
+ $('#wres').innerHTML=`<h3>Overall: ${tag(all)} ${all}% pollution level</h3>${meter(all)}<div style="margin-top:.6rem">`+
+  P.map((p,i)=>`<div class="row"><span>${p[1]} <span class="mut">${vals[i]} ${p[2]} (safe limit ${LIM[p[0]]})</span></span>${meter(Math.round(sc[p[0]]))}<span>${Math.round(sc[p[0]])}%</span>${tag(sc[p[0]])}</div>`).join('')+
+  `</div><h3 style="margin-top:1rem">Predicted source</h3><ul>${src.map(s=>`<li>${s}</li>`).join('')}</ul><p class="mut">Safe limits follow WHO and BIS drinking-water guidance, and CPCB guidance for BOD. Each percentage shows how far a reading is from a safe level.</p>`;
+ sv('lastW',{all,sc});log('Water quality','Overall water quality',all,src[0])};
+
+/* oil spill */
+$('#oimg').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image(),url=URL.createObjectURL(f);
+ img.onload=()=>{const c=$('#cv'),x=c.getContext('2d',{willReadFrequently:true}),r=Math.min(1,200/img.width);c.width=Math.round(img.width*r);c.height=Math.round(img.height*r);
+  x.drawImage(img,0,0,c.width,c.height);const d=x.getImageData(0,0,c.width,c.height).data;let dark=0,n=0;
+  for(let i=0;i<d.length;i+=4){const mx=Math.max(d[i],d[i+1],d[i+2]),mn=Math.min(d[i],d[i+1],d[i+2]);if(mx<95&&(mx-mn)<45)dark++;n++}
+  const pct=Math.round(clamp(dark/n*100*1.25)),L=lvl(pct);
+  const src={Low:'Minor harbour or port runoff, or a small bilge leak.',Medium:'Probable ship ballast or bilge discharge near a shipping lane.',High:'Likely tanker accident, pipeline rupture or offshore rig leak.'}[L];
+  $('#oprev').src=url;$('#oprev').classList.remove('hide');
+  $('#ores').innerHTML=`<h3>Oil spill level: ${tag(pct)} ${pct}% surface coverage</h3>${meter(pct)}<p><b>Predicted source:</b> ${src}</p>`;
+  sv('lastO',pct);log('Oil spill',esc(f.name),pct,src)};
+ img.onerror=()=>{$('#ores').innerHTML='<p class="err">That file could not be read as an image. Try a JPG or PNG.</p>'};img.src=url};
+
+/* live camera */
+let stream;
+function stopCam(){stream&&stream.getTracks().forEach(t=>t.stop());stream=null;['#vid','#snap','#stopc'].forEach(s=>$(s).classList.add('hide'));$('#cam').classList.remove('hide')}
+function feed(f){const dt=new DataTransfer();dt.items.add(f);$('#oimg').files=dt.files;$('#oimg').dispatchEvent(new Event('change'))}
+$('#cam').onclick=async()=>{try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});$('#vid').srcObject=stream;['#vid','#snap','#stopc'].forEach(s=>$(s).classList.remove('hide'));$('#cam').classList.add('hide')}catch(e){$('#cin').click()}};
+$('#stopc').onclick=stopCam;
+$('#snap').onclick=()=>{const v=$('#vid'),c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);stopCam();c.toBlob(b=>feed(new File([b],'camera-capture.jpg',{type:'image/jpeg'})),'image/jpeg',.9)};
+$('#cin').onchange=e=>{if(e.target.files[0])feed(e.target.files[0])};
+/* states */
+const ST=['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal'];
+const sd=n=>{const h=hash(n);return{water:h%97,oil:(h>>>3)%89,micro:(h>>>6)%93}};
+const tot=n=>{const s=sd(n);return(s.water+s.oil+s.micro)/3};
+$('#ss').innerHTML=ST.map(s=>`<option>${s}</option>`).join('');$('#ss').onchange=stateView;
+function stateView(){const n=$('#ss').value,s=sd(n),t=Math.round(tot(n));
+ $('#sres').innerHTML=`<h3>${n}: ${tag(t)} ${t}% overall</h3>`+bars([{l:'Water quality',v:s.water},{l:'Oil spill',v:s.oil},{l:'Microplastics',v:s.micro}])+
+  `<p class="mut">Demo baseline values for each state. Connect your sensor or agency feeds to replace them with live readings.</p>`;
+ $('#allst').innerHTML=bars(ST.map(x=>({l:x,v:tot(x)})).sort((a,b)=>b.v-a.v));
+ $('#hot').innerHTML=bars(ST.map(x=>({l:x,v:tot(x)})).sort((a,b)=>b.v-a.v).slice(0,5))}
+
+/* microplastics */
+const mp=()=>ld('mp',[]);
+$('#madd').onclick=()=>{const la=$('#la').value,lo=$('#lo').value,pc=$('#pc').value,er=$('#merr');
+ if([la,lo,pc].some(v=>v===''||isNaN(v))||Math.abs(la)>90||Math.abs(lo)>180||pc<0){er.textContent='Enter latitude (−90 to 90), longitude (−180 to 180) and a particle count of 0 or more.';return}
+ er.textContent='';const m=mp();m.push({la:+la,lo:+lo,pc:+pc});sv('mp',m);
+ log('Microplastics',`${la}, ${lo}`,clamp(pc/50*100),`${pc} particles/m³`);['la','lo','pc'].forEach(i=>$('#'+i).value='');micro()};
+$('#mload').onclick=()=>{const s=[[13.05,80.28,34],[19.07,72.87,48],[8.5,76.94,12],[15.49,73.83,9],[22.57,88.36,41],[17.69,83.22,22]];sv('mp',mp().concat(s.map(r=>({la:r[0],lo:r[1],pc:r[2]}))));micro()};
+$('#mclr').onclick=()=>{sv('mp',[]);micro()};
+function micro(){const m=mp();
+ $('#mtab').innerHTML=m.length?`<table><tr><th>#</th><th>Latitude</th><th>Longitude</th><th>Particles/m³</th><th>Level</th></tr>`+m.map((r,i)=>{const p=clamp(r.pc/50*100);return`<tr><td>${i+1}</td><td>${r.la}</td><td>${r.lo}</td><td>${r.pc}</td><td>${tag(p)} ${Math.round(p)}%</td></tr>`}).join('')+'</table>':'<p class="mut">No records yet. Add one above or load the sample records.</p>';
+ $('#mscat').innerHTML=scatter(m);
+ $('#mchart').innerHTML=bars(m.slice(-12).map((r,i)=>({l:`${r.la.toFixed(1)}, ${r.lo.toFixed(1)}`,v:clamp(r.pc/50*100)})))}
+
+/* history */
+function hist(){const h=ld('hist',[]);
+ $('#htab').innerHTML=h.length?`<table><tr><th>When</th><th>Type</th><th>Item</th><th>Level</th><th>Note</th></tr>`+h.map(r=>`<tr><td>${esc(r.t)}</td><td>${esc(r.type)}</td><td>${r.title}</td><td>${tag(r.pct)} ${r.pct}%</td><td>${esc(r.detail)}</td></tr>`).join('')+'</table>':'<p class="mut">Nothing here yet. Your analyses will be listed here.</p>'}
+$('#hclr').onclick=()=>{sv('hist',[]);hist()};
+
+/* home (marketplace style) */
+const FT=[['water','💧','Water Quality Test','Check pH, turbidity, arsenic, mercury, BOD and lead with Low, Medium or High levels.','Water','Popular'],
+['oil','🛢️','Oil Spill Detection','Upload or capture a sea image and get the spill level.','Oil','New'],
+['micro','🧪','Microplastic Monitoring','Record latitude, longitude and particle load with graphs.','Microplastic',''],
+['state','📍','State Pollution Levels','Choose your state and see its pollution levels.','Location',''],
+['dash','📊','Dashboard and Graphs','Trends, alerts and safety advice at a glance.','Reports',''],
+['hist','🕘','Analysis History','Review every past analysis.','Reports','']];
+let cat='All';
+function home(){const q=$('#hq').value.toLowerCase();
+ $('#hcats').innerHTML=['All','Water','Oil','Microplastic','Location','Reports'].map(c=>`<button class='${c===cat?'on':''}' data-c='${c}'>${c}</button>`).join('');
+ $$('#hcats button').forEach(b=>b.onclick=()=>{cat=b.dataset.c;home()});
+ const L=FT.filter(f=>(cat==='All'||f[4]===cat)&&(f[2]+' '+f[3]).toLowerCase().includes(q));
+ $('#hgrid').innerHTML=L.map(f=>`<div class='card pc'><div class='pimg'>${f[1]}</div>${f[5]?`<span class='tag pb'>${f[5]}</span>`:''}<h3>${f[2]}</h3><p class='mut'>${f[3]}</p><div><b>Free</b> <span class='mut'>to use</span></div><button class='pri' data-g='${f[0]}'>Open tool</button></div>`).join('')||'<p class="mut">No tools match your search.</p>';
+ $$('#hgrid button').forEach(b=>b.onclick=()=>go(b.dataset.g));
+ const h=ld('hist',[]).slice(0,4);
+ $('#hrec').innerHTML=h.length?h.map(r=>`<div class='row'><span>${esc(r.type)} <span class='mut'>${esc(r.t)}</span></span>${tag(r.pct)} <span>${r.pct}%</span></div>`).join(''):'<p class="mut">Nothing analysed yet.</p>'}
+$('#hq').oninput=home;$('#hs').onclick=home;$('#hgo').onclick=()=>go('water');
+/* admin */
+const ADM=()=>/^admin/.test(ld('sess',''));
+function admin(){if(!ADM()){go('dash');return}const u=ld('users',{}),mt=ld('meta',{}),em=Object.keys(u),h=ld('hist',[]);
+ $('#astats').innerHTML=[['Registered users',em.length],['Blocked users',em.filter(e=>mt[e]&&mt[e].b).length],['Total analyses',h.length],['High-level alerts',h.filter(r=>r.pct>=66).length]].map(x=>`<div class='card stat'><span class='mut'>${x[0]}</span><b>${x[1]}</b></div>`).join('');
+ $('#atab').innerHTML=`<table><tr><th>Email</th><th>Role</th><th>Joined</th><th>Last login</th><th>Logins</th><th>Status</th><th>Action</th></tr>`+em.map(e=>{const m=mt[e]||{},ad=/^admin/.test(e);return `<tr><td>${esc(e)}</td><td>${ad?'Admin':'User'}</td><td>${m.j||'-'}</td><td>${m.l||'-'}</td><td>${m.n||0}</td><td>${m.b?`<span class='tag High'>Blocked</span>`:`<span class='tag Low'>Active</span>`}</td><td>${ad?'':`<button data-a='b' data-e='${esc(e)}'>${m.b?'Unblock':'Block'}</button> <button data-a='d' data-e='${esc(e)}'>Remove</button>`}</td></tr>`}).join('')+'</table>';
+ $$('#atab button').forEach(b=>b.onclick=()=>{const e=b.dataset.e,u=ld('users',{}),mt=ld('meta',{});if(b.dataset.a==='d'){delete u[e];delete mt[e];sv('users',u)}else{mt[e]=mt[e]||{};mt[e].b=mt[e].b?0:1}sv('meta',mt);admin()});
+ $('#aact').innerHTML=bars(['Water quality','Oil spill','Microplastics'].map(t=>({l:t,v:h.length?h.filter(r=>r.type===t).length/h.length*100:0})))}
+/* dashboard helpers */
+const nm=()=>{const n=ld('sess','').split('@')[0].replace(/[._\d]+/g,' ').trim();return n?n[0].toUpperCase()+n.slice(1):'there'};
+function stack(c){const t=c.Low+c.Medium+c.High;let x=0;const k=['Low','Medium','High'];return `<svg viewBox="0 0 360 60" role="img" aria-label="Level distribution">`+k.map(n=>{const w=c[n]/t*340,r=`<rect x="${10+x}" y="6" width="${w}" height="24" style="fill:${COL[n]}"/>`;x+=w;return r}).join('')+k.map((n,i)=>`<text x="${10+i*120}" y="50">${n}: ${c[n]}</text>`).join('')+'</svg>'}
+function alerts(w,o,m){const a=[],add=(p,t)=>{if(p!=null)a.push(`<div class="row"><span>${t[lvl(p)]}</span>${tag(p)}</div>`)};
+ add(w&&w.all,{Low:'Water is within safe limits. Keep routine monitoring.',Medium:'Water is moderately polluted. Treat it before use and test again within 24 hours.',High:'Water is heavily polluted. Do not drink or bathe in it. Inform the State Pollution Control Board.'});
+ add(o,{Low:'Only a trace of oil on the surface. Keep monitoring the area.',Medium:'A noticeable oil film. Report it to the port authority and keep small boats away.',High:'Large oil slick. Alert the Indian Coast Guard and the State Pollution Control Board, and start containment.'});
+ add(m,{Low:'Microplastic load is low. Continue periodic sampling.',Medium:'Microplastic load is moderate. Trace sources such as river outlets, fishing gear and plastic waste near the coast.',High:'Microplastic load is high. Restrict plastic discharge nearby and report to the coastal pollution authority.'});
+ return a.join('')||'<p class="mut">No alerts yet. Analyse water, add an oil image or add microplastic records to get advice.</p>'}
+function scatter(m){if(!m.length)return'<p class="mut">Add records to plot their locations.</p>';const la=m.map(r=>r.la),lo=m.map(r=>r.lo),a=Math.min(...la),b=Math.max(...la),c=Math.min(...lo),d=Math.max(...lo),sx=v=>40+(d===c?140:(v-c)/(d-c)*290),sy=v=>130-(b===a?55:(v-a)/(b-a)*100);
+ return `<svg viewBox="0 0 360 170" role="img" aria-label="Microplastic locations"><line x1="30" x2="350" y1="145" y2="145" style="stroke:var(--ln)"/><line x1="30" x2="30" y1="10" y2="145" style="stroke:var(--ln)"/>`+m.map(r=>{const p=clamp(r.pc/50*100);return `<circle cx="${sx(r.lo)}" cy="${sy(r.la)}" r="${5+p/12}" style="fill:${COL[lvl(p)]};fill-opacity:.8"/>`}).join('')+`<text x="30" y="162">Longitude ${c} to ${d}</text><text x="36" y="20">Latitude ${a} to ${b}</text></svg>`}
+/* dashboard */
+function dash(){const h=ld('hist',[]),w=ld('lastW',null),o=ld('lastO',null),m=mp(),
+ mpL=m.length?clamp(m[m.length-1].pc/50*100):null;
+ const st=(t,v)=>`<div class="card stat"><span class="mut">${t}</span><b>${v==null?'–':Math.round(v)+'%'}</b>${v==null?'<span class="mut">No data</span>':tag(v)}</div>`;
+ $('#stats').innerHTML=st('Water quality',w&&w.all)+st('Oil spill',o)+st('Microplastics',mpL)+`<div class="card stat"><span class="mut">Analyses run</span><b>${h.length}</b></div>`;
+ $('#ban').innerHTML=`<b>Hello, ${esc(nm())}!</b> Here are your latest water, oil and microplastic levels.`;
+ const cnt={Low:0,Medium:0,High:0};h.forEach(r=>cnt[lvl(r.pct)]++);
+ $('#dist').innerHTML=h.length?stack(cnt):'<p class="mut">No analyses yet.</p>';
+ $('#otrend').innerHTML=line(h.filter(r=>r.type==='Oil spill').map(r=>r.pct).reverse().slice(-12));
+ $('#alerts').innerHTML=alerts(w,o,mpL);
+ $('#trend').innerHTML=line(h.filter(r=>r.type==='Water quality').map(r=>r.pct).reverse().slice(-12));
+ $('#lastparams').innerHTML=w?bars(P.map(p=>({l:p[1],v:w.sc[p[0]]}))):'<p class="mut">Run a water analysis to see parameter levels.</p>';
+ $('#typebars').innerHTML=bars([['Water quality',w&&w.all],['Oil spill',o],['Microplastics',mpL]].filter(x=>x[1]!=null).map(x=>({l:x[0],v:x[1]})))}
+
+show(!!ld('sess',''));
+</script></body></html>
