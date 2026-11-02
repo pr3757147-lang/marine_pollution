@@ -69,10 +69,7 @@ video{width:100%;max-height:260px;border-radius:10px;background:#000;margin:.6re
  <nav id="nav"></nav>
  <main>
   <section id='v-home'>
-   <div class='sbar'><input id='hq' type='search' placeholder='Search tools: water, oil, plastic, state' aria-label='Search tools'><button class='pri' id='hs'>Search</button></div>
-   <div class='chips' id='hcats'></div>
    <div class='hero'><div><h2>Detect marine pollution early</h2><p>Analyse water, oil spills and microplastics, then act on the results.</p><button id='hgo'>Start analysis</button></div><div style='font-size:4rem'>🌊</div></div>
-   <h3>Tools</h3><div class='pgrid' id='hgrid'></div>
    <h3 style='margin-top:1rem'>Recently analysed</h3><div class='card' id='hrec'></div>
   </section>
 
@@ -133,6 +130,22 @@ video{width:100%;max-height:260px;border-radius:10px;background:#000;margin:.6re
    <div class="card"><h3>Sampling locations (bigger circle means higher load)</h3><div id="mscat"></div></div>
   </section>
 
+  <section id='v-mail' class='hide'>
+   <h2>Email alerts</h2>
+   <div class='card'>
+    <label for='mto'>Send alerts to (separate several emails with commas)</label><input id='mto' type='text' placeholder='officer@example.com'>
+    <label for='mmin' style='margin-top:.6rem'>Alert me when the level is at least</label><select id='mmin'><option>High</option><option>Medium</option></select>
+    <label style='margin-top:.6rem'><input type='checkbox' id='mauto' style='width:auto'> Send automatically after each analysis</label>
+    <details style='margin-top:.8rem'><summary>Send without opening your email app (EmailJS, optional)</summary>
+     <p class='mut'>Create a free EmailJS account, add an email service and a template that uses {{to_email}}, {{subject}} and {{message}}, then paste the IDs here. Without these, alerts open your email app with the message filled in.</p>
+     <label for='msid'>Service ID</label><input id='msid'><label for='mtid'>Template ID</label><input id='mtid'><label for='mkey'>Public key</label><input id='mkey'>
+    </details><br>
+    <button class='pri' id='msave'>Save settings</button> <button id='mtest'>Send test alert</button>
+    <p id='mstat' class='mut'></p>
+   </div>
+   <div class='card'><h3>Alert log</h3><div class='wrap' id='mlog'></div></div>
+  </section>
+
   <section id='v-admin' class='hide'>
    <h2>Admin panel</h2>
    <div class='grid' id='astats'></div><br>
@@ -170,7 +183,7 @@ function line(v){if(v.length<2)return'<p class="mut">Run at least two analyses t
  `<polyline points="${pts}" fill="none" style="stroke:var(--ac)" stroke-width="2.5"/>`+v.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p)}" r="4" style="fill:${COL[lvl(p)]}"/>`).join('')+'</svg>'}
 
 /* history */
-function log(type,title,pct,detail){const h=ld('hist',[]);h.unshift({t:new Date().toLocaleString(),type,title,pct:Math.round(pct),detail});sv('hist',h.slice(0,200))}
+function log(type,title,pct,detail){const h=ld('hist',[]);h.unshift({t:new Date().toLocaleString(),type,title,pct:Math.round(pct),detail});sv('hist',h.slice(0,200));maybeAlert(type,title,pct,detail)}
 
 /* auth */
 function show(on,wl){$('#login').classList.toggle('hide',on);$('#app').classList.toggle('hide',!on);if(on){$('#who').textContent=ld('sess','');$('#nav [data-v=admin]').classList.toggle('hide',!ADM());go('home');if(wl){$('#welt').textContent='Welcome, '+nm()+'!';$('#wel').classList.remove('hide');setTimeout(()=>$('#wel').classList.add('hide'),3500)}}}
@@ -185,11 +198,11 @@ $('#lbtn').onclick=()=>{const e=$('#em').value.trim().toLowerCase(),p=$('#pw').v
 $('#out').onclick=()=>{sv('sess','');show(false);const er=$('#lerr');er.style.color='var(--lo)';er.textContent='You’ve logged out safely.'};
 
 /* nav */
-const V=[['home','Home'],['dash','Dashboard'],['water','Water quality'],['oil','Oil spill'],['state','State levels'],['micro','Microplastics'],['hist','History'],['admin','Admin']];
+const V=[['home','Home'],['dash','Dashboard'],['water','Water quality'],['oil','Oil spill'],['state','State levels'],['micro','Microplastics'],['hist','History'],['mail','Email alerts'],['admin','Admin']];
 $('#nav').innerHTML=V.map(v=>`<button data-v="${v[0]}">${v[1]}</button>`).join('');
 $$('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
 function go(v){V.forEach(x=>$('#v-'+x[0]).classList.toggle('hide',x[0]!==v));$$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
- ({dash:dash,state:stateView,micro:micro,hist:hist,admin:admin,home:home})[v]?.();window.scrollTo(0,0)}
+ ({dash:dash,state:stateView,micro:micro,hist:hist,admin:admin,home:home,mail:mailv})[v]?.();window.scrollTo(0,0)}
 
 /* water quality */
 const P=[['ph','pH','',v=>(Math.abs(v-7.5)-1)/2.5*100,'7.8'],['tu','Turbidity','NTU',v=>v/50*100,'12'],['te','Temperature','°C',v=>(v-25)/15*100,'29'],
@@ -264,22 +277,27 @@ function hist(){const h=ld('hist',[]);
 $('#hclr').onclick=()=>{sv('hist',[]);hist()};
 
 /* home (marketplace style) */
-const FT=[['water','💧','Water Quality Test','Check pH, turbidity, arsenic, mercury, BOD and lead with Low, Medium or High levels.','Water','Popular'],
-['oil','🛢️','Oil Spill Detection','Upload or capture a sea image and get the spill level.','Oil','New'],
-['micro','🧪','Microplastic Monitoring','Record latitude, longitude and particle load with graphs.','Microplastic',''],
-['state','📍','State Pollution Levels','Choose your state and see its pollution levels.','Location',''],
-['dash','📊','Dashboard and Graphs','Trends, alerts and safety advice at a glance.','Reports',''],
-['hist','🕘','Analysis History','Review every past analysis.','Reports','']];
-let cat='All';
-function home(){const q=$('#hq').value.toLowerCase();
- $('#hcats').innerHTML=['All','Water','Oil','Microplastic','Location','Reports'].map(c=>`<button class='${c===cat?'on':''}' data-c='${c}'>${c}</button>`).join('');
- $$('#hcats button').forEach(b=>b.onclick=()=>{cat=b.dataset.c;home()});
- const L=FT.filter(f=>(cat==='All'||f[4]===cat)&&(f[2]+' '+f[3]).toLowerCase().includes(q));
- $('#hgrid').innerHTML=L.map(f=>`<div class='card pc'><div class='pimg'>${f[1]}</div>${f[5]?`<span class='tag pb'>${f[5]}</span>`:''}<h3>${f[2]}</h3><p class='mut'>${f[3]}</p><div><b>Free</b> <span class='mut'>to use</span></div><button class='pri' data-g='${f[0]}'>Open tool</button></div>`).join('')||'<p class="mut">No tools match your search.</p>';
- $$('#hgrid button').forEach(b=>b.onclick=()=>go(b.dataset.g));
- const h=ld('hist',[]).slice(0,4);
+function home(){const h=ld('hist',[]).slice(0,4);
  $('#hrec').innerHTML=h.length?h.map(r=>`<div class='row'><span>${esc(r.type)} <span class='mut'>${esc(r.t)}</span></span>${tag(r.pct)} <span>${r.pct}%</span></div>`).join(''):'<p class="mut">Nothing analysed yet.</p>'}
-$('#hq').oninput=home;$('#hs').onclick=home;$('#hgo').onclick=()=>go('water');
+$('#hgo').onclick=()=>go('water');
+/* email alerts */
+const ADV={Low:'No urgent action. Keep monitoring.',Medium:'Inform the local pollution control office and re-test within 24 hours.',High:'Act now. Alert the State Pollution Control Board and the Coast Guard, and avoid using the water.'};
+const mc=()=>ld('mcfg',{});
+const mst=t=>{$('#mstat').textContent=t};
+function mlogr(){const g=ld('mlog',[]);$('#mlog').innerHTML=g.length?`<table><tr><th>When</th><th>Subject</th><th>To</th><th>Sent via</th></tr>`+g.map(r=>`<tr><td>${esc(r.t)}</td><td>${esc(r.s)}</td><td>${esc(r.to)}</td><td>${esc(r.how)}</td></tr>`).join('')+'</table>':'<p class="mut">No alerts sent yet.</p>'}
+function mailv(){const c=mc();$('#mto').value=c.to||'';$('#mmin').value=c.min||'High';$('#mauto').checked=!!c.auto;$('#msid').value=c.sid||'';$('#mtid').value=c.tid||'';$('#mkey').value=c.key||'';mlogr()}
+async function sendMail(type,title,pct,detail){const c=mc(),to=(c.to||'').trim();
+ if(!to){mst('Save a recipient email first.');return}
+ const L=lvl(pct),sub=`[${L}] ${type} alert: ${Math.round(pct)}%`,msg=`Marine Pollution Detection alert\n\nType: ${type}\nItem: ${title}\nLevel: ${L} (${Math.round(pct)}%)\nNote: ${detail}\nTime: ${new Date().toLocaleString()}\n\nRecommended action: ${ADV[L]}`;
+ let how='email app';
+ if(c.sid&&c.tid&&c.key){try{const r=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_id:c.sid,template_id:c.tid,user_id:c.key,template_params:{to_email:to,subject:sub,message:msg}})});if(!r.ok)throw new Error(r.status);how='EmailJS'}catch(e){how='email app'}}
+ if(how==='email app')location.href=`mailto:${to.split(',').map(s=>s.trim()).join(',')}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(msg)}`;
+ const g=ld('mlog',[]);g.unshift({t:new Date().toLocaleString(),s:sub,to,how});sv('mlog',g.slice(0,30));
+ if($('#mstat'))mst(how==='EmailJS'?'Alert sent to '+to+'.':'Your email app opened. Press Send there to deliver the alert.');mlogr()}
+function maybeAlert(type,title,pct,detail){const c=mc();if(c.auto&&c.to&&pct>=(c.min==='Medium'?33:66))sendMail(type,title,pct,detail)}
+$('#msave').onclick=()=>{const to=$('#mto').value.trim();if(!to||to.split(',').some(s=>!/^\S+@\S+\.\S+$/.test(s.trim()))){mst('Enter one or more valid email addresses.');return}
+ sv('mcfg',{to,min:$('#mmin').value,auto:$('#mauto').checked,sid:$('#msid').value.trim(),tid:$('#mtid').value.trim(),key:$('#mkey').value.trim()});mst('Settings saved.')};
+$('#mtest').onclick=()=>sendMail('Test','Test alert',80,'This is a test message from Marine Pollution Detection.');
 /* admin */
 const ADM=()=>/^admin/.test(ld('sess',''));
 function admin(){if(!ADM()){go('dash');return}const u=ld('users',{}),mt=ld('meta',{}),em=Object.keys(u),h=ld('hist',[]);
